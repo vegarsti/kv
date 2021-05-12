@@ -13,6 +13,11 @@ func main() {
 	}
 
 	k := socket.New()
+	if err := k.Open(); err != nil {
+		fmt.Fprintf(os.Stderr, "open: %v\n", err)
+		os.Exit(1)
+	}
+	defer k.Close()
 	key := os.Args[2]
 	switch os.Args[1] {
 	case "get":
