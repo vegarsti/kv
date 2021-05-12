@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -14,12 +15,14 @@ type Server struct {
 	l    net.Listener
 	quit chan interface{}
 	wg   sync.WaitGroup
+	kv   map[string]string
 }
 
 func NewServer() *Server {
 	return &Server{
 		addr: "/tmp/echo.sock",
 		quit: make(chan interface{}),
+		kv:   make(map[string]string),
 	}
 }
 
@@ -57,7 +60,39 @@ func (s *Server) handleConnection(conn net.Conn) {
 		if n == 0 {
 			break
 		}
-		log.Printf("Received %s", string(buf[:n]))
+		got := buf[:n]
+		log.Printf("Received %s", string(got))
+		var request Request
+		if err := json.Unmarshal(got, &request); err != nil {
+			log.Printf("Unmarshal request error: %v", err)
+			break
+		}
+		var response Response
+		switch request.Kind {
+		case Get:
+			log.Printf("GET %s", request.Key)
+			response.Kind = Get
+			value, ok := s.kv[request.Key]
+			response.Value = value
+			response.OK = ok
+		case Set:
+			log.Printf("SET %s %s", request.Key, request.Value)
+			response.Kind = Set
+			s.kv[request.Key] = request.Value
+			response.OK = true
+		default:
+			log.Println("method not allowed")
+		}
+		responseJSON, err := json.Marshal(response)
+		if err != nil {
+			log.Printf("Marshal response error: %v", err)
+			break
+		}
+		if _, err := conn.Write(responseJSON); err != nil {
+			log.Printf("write error: %v", err)
+			break
+		}
+		log.Printf("Sent %s", string(responseJSON))
 	}
 	log.Println("Connection closed")
 }
