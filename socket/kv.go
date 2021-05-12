@@ -33,7 +33,7 @@ func (k *KV) Close() error {
 	return k.c.Close()
 }
 
-func reader(r io.Reader, messages chan []byte) {
+func receive(r io.Reader, messages chan []byte) {
 	buf := make([]byte, 1024)
 	n, err := r.Read(buf[:])
 	if err != nil {
@@ -67,6 +67,9 @@ func (k *KV) Set(key string, value []byte) error {
 }
 
 func (k *KV) Request(request Request) (*Response, error) {
+	messages := make(chan []byte)
+	go receive(k.c, messages)
+
 	setJSON, err := json.Marshal(request)
 	if err != nil {
 		return nil, fmt.Errorf("marshal: %w", err)
@@ -74,8 +77,7 @@ func (k *KV) Request(request Request) (*Response, error) {
 	if _, err := k.c.Write(setJSON); err != nil {
 		return nil, fmt.Errorf("write: %w", err)
 	}
-	messages := make(chan []byte)
-	go reader(k.c, messages)
+
 	message := <-messages
 	if string(message) == "error" {
 		return nil, fmt.Errorf("got error message in channel: %v", string(message))
