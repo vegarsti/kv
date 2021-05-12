@@ -37,7 +37,7 @@ func reader(r io.Reader, messages chan []byte) {
 	buf := make([]byte, 1024)
 	n, err := r.Read(buf[:])
 	if err != nil {
-		return
+		messages <- []byte(err.Error())
 	}
 	messages <- buf[:n]
 }
@@ -77,6 +77,9 @@ func (k *KV) Request(request Request) (*Response, error) {
 	messages := make(chan []byte)
 	go reader(k.c, messages)
 	message := <-messages
+	if string(message) == "error" {
+		return nil, fmt.Errorf("got error message in channel: %v", string(message))
+	}
 	var response Response
 	if err := json.Unmarshal(message, &response); err != nil {
 		return nil, fmt.Errorf("unmarshal: %w", err)
