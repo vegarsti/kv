@@ -43,11 +43,35 @@ func reader(r io.Reader, messages chan []byte) {
 }
 
 func (k *KV) Get(key string) ([]byte, error) {
-	getJSON, err := json.Marshal(Request{Kind: Get, Key: key})
+	request := Request{Kind: Get, Key: key}
+	response, err := k.Request(request)
+	if err != nil {
+		return nil, fmt.Errorf("request: %w", err)
+	}
+	if !response.OK {
+		return nil, fmt.Errorf("got not OK response")
+	}
+	return []byte(response.Value), nil
+}
+
+func (k *KV) Set(key string, value []byte) error {
+	request := Request{Kind: Set, Key: key, Value: string(value)}
+	response, err := k.Request(request)
+	if err != nil {
+		return fmt.Errorf("request: %w", err)
+	}
+	if !response.OK {
+		return fmt.Errorf("got not OK response")
+	}
+	return nil
+}
+
+func (k *KV) Request(request Request) (*Response, error) {
+	setJSON, err := json.Marshal(request)
 	if err != nil {
 		return nil, fmt.Errorf("marshal: %w", err)
 	}
-	if _, err := k.c.Write(getJSON); err != nil {
+	if _, err := k.c.Write(setJSON); err != nil {
 		return nil, fmt.Errorf("write: %w", err)
 	}
 	messages := make(chan []byte)
@@ -57,29 +81,5 @@ func (k *KV) Get(key string) ([]byte, error) {
 	if err := json.Unmarshal(message, &response); err != nil {
 		return nil, fmt.Errorf("unmarshal: %w", err)
 	}
-	if !response.OK {
-		return nil, fmt.Errorf("got not OK response")
-	}
-	return []byte(response.Value), nil
-}
-
-func (k *KV) Set(key string, value []byte) error {
-	setJSON, err := json.Marshal(Request{Kind: Set, Key: key, Value: string(value)})
-	if err != nil {
-		return fmt.Errorf("marshal: %w", err)
-	}
-	if _, err := k.c.Write(setJSON); err != nil {
-		return fmt.Errorf("write: %w", err)
-	}
-	messages := make(chan []byte)
-	go reader(k.c, messages)
-	message := <-messages
-	var response Response
-	if err := json.Unmarshal(message, &response); err != nil {
-		return fmt.Errorf("unmarshal: %w", err)
-	}
-	if !response.OK {
-		return fmt.Errorf("got not OK response")
-	}
-	return nil
+	return &response, nil
 }
