@@ -50,7 +50,7 @@ func (s *Server) Close() error {
 
 func (s *Server) handleConnection(conn net.Conn) {
 	defer conn.Close()
-	buf := make([]byte, 2048)
+	buf := make([]byte, 2048) // max size of request payload
 	for {
 		n, err := conn.Read(buf)
 		if err != nil && err != io.EOF {
