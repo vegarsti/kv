@@ -2,8 +2,11 @@ package socket
 
 type MessageKind string
 
-var Get MessageKind = "GET"
-var Set MessageKind = "SET"
+var (
+	Get    MessageKind = "GET"
+	Set    MessageKind = "SET"
+	Delete MessageKind = "DELETE"
+)
 
 type Request struct {
 	Kind  MessageKind `json:"kind"`

@@ -73,13 +73,24 @@ func (s *Server) handleConnection(conn net.Conn) {
 			log.Printf("GET %s", request.Key)
 			response.Kind = Get
 			value, ok := s.kv[request.Key]
-			response.Value = value
 			response.OK = ok
+			response.Value = value
 		case Set:
 			log.Printf("SET %s %s", request.Key, request.Value)
 			response.Kind = Set
-			s.kv[request.Key] = request.Value
-			response.OK = true
+			_, ok := s.kv[request.Key]
+			response.OK = !ok
+			if !ok {
+				s.kv[request.Key] = request.Value
+			}
+		case Delete:
+			log.Printf("DELETE %s", request.Key)
+			response.Kind = Delete
+			_, ok := s.kv[request.Key]
+			response.OK = ok
+			if ok {
+				delete(s.kv, request.Key)
+			}
 		default:
 			log.Println("method not allowed")
 		}
@@ -95,6 +106,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 		log.Printf("Sent %s", string(responseJSON))
 	}
 	log.Println("Connection closed")
+	log.Printf("Currently %d keys", len(s.kv))
 }
 
 func (s *Server) serve() {

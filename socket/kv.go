@@ -66,6 +66,18 @@ func (k *KV) Set(key string, value []byte) error {
 	return nil
 }
 
+func (k *KV) Delete(key string) error {
+	request := Request{Kind: Delete, Key: key}
+	response, err := k.Request(request)
+	if err != nil {
+		return fmt.Errorf("request: %w", err)
+	}
+	if !response.OK {
+		return fmt.Errorf("got not OK response")
+	}
+	return nil
+}
+
 func (k *KV) Request(request Request) (*Response, error) {
 	messages := make(chan []byte)
 	go receive(k.c, messages)

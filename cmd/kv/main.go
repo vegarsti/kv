@@ -8,7 +8,7 @@ import (
 
 func main() {
 	if len(os.Args[1:]) < 2 {
-		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]`\n")
+		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
 
@@ -38,8 +38,14 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("set %s: %s OK\n", key, value)
+	case "delete":
+		if err := k.Delete(key); err != nil {
+			fmt.Fprintf(os.Stderr, "delete %s: %v\n", key, err)
+			os.Exit(1)
+		}
+		fmt.Printf("delete %s: OK\n", key)
 	default:
-		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]`\n")
+		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
 }
