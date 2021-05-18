@@ -15,6 +15,7 @@ type Server struct {
 	l    net.Listener
 	quit chan interface{}
 	wg   sync.WaitGroup
+	mu   sync.Mutex
 	kv   map[string]string
 }
 
@@ -67,6 +68,8 @@ func (s *Server) handleConnection(conn net.Conn) {
 			log.Printf("Unmarshal request error: %v", err)
 			break
 		}
+		s.mu.Lock() // blocks until lock is acquired
+		defer s.mu.Unlock()
 		var response Response
 		switch request.Kind {
 		case Get:
