@@ -4,7 +4,7 @@ type MessageKind string
 
 var (
 	Get    MessageKind = "GET"
-	Set    MessageKind = "SET"
+	Put    MessageKind = "PUT"
 	Delete MessageKind = "DELETE"
 )
 

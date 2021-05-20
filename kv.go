@@ -1,7 +1,7 @@
 package kv
 
 type KV interface {
-	Get(key string) ([]byte, error)
-	Set(key string, value []byte) error
+	Get(key string) (string, error)
+	Put(key string, value string) error
 	Delete(key string) error
 }

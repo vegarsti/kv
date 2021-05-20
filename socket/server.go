@@ -73,21 +73,21 @@ func (s *Server) handleConnection(conn net.Conn) {
 		var response Response
 		switch request.Kind {
 		case Get:
-			log.Printf("GET %s", request.Key)
+			log.Printf("%s %s", Get, request.Key)
 			response.Kind = Get
 			value, ok := s.kv[request.Key]
 			response.OK = ok
 			response.Value = value
-		case Set:
-			log.Printf("SET %s %s", request.Key, request.Value)
-			response.Kind = Set
+		case Put:
+			log.Printf("%s %s %s", Put, request.Key, request.Value)
+			response.Kind = Put
 			_, ok := s.kv[request.Key]
 			response.OK = !ok
 			if !ok {
 				s.kv[request.Key] = request.Value
 			}
 		case Delete:
-			log.Printf("DELETE %s", request.Key)
+			log.Printf("%s %s", Delete, request.Key)
 			response.Kind = Delete
 			_, ok := s.kv[request.Key]
 			response.OK = ok

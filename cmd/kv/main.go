@@ -8,7 +8,7 @@ import (
 
 func main() {
 	if len(os.Args[1:]) < 2 {
-		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
+		fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
 
@@ -27,17 +27,17 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("get %s: %s\n", key, value)
-	case "set":
+	case "put":
 		if len(os.Args[1:]) != 3 {
-			fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]`\n")
+			fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]`\n")
 			os.Exit(1)
 		}
-		value := []byte(os.Args[3])
-		if err := k.Set(key, value); err != nil {
-			fmt.Fprintf(os.Stderr, "set %s: %s: %v\n", key, value, err)
+		value := os.Args[3]
+		if err := k.Put(key, value); err != nil {
+			fmt.Fprintf(os.Stderr, "put %s: %s: %v\n", key, value, err)
 			os.Exit(1)
 		}
-		fmt.Printf("set %s: %s OK\n", key, value)
+		fmt.Printf("put %s: %s OK\n", key, value)
 	case "delete":
 		if err := k.Delete(key); err != nil {
 			fmt.Fprintf(os.Stderr, "delete %s: %v\n", key, err)
@@ -45,7 +45,7 @@ func main() {
 		}
 		fmt.Printf("delete %s: OK\n", key)
 	default:
-		fmt.Fprintf(os.Stderr, "usage: `kv [set] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
+		fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
 }
