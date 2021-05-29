@@ -49,10 +49,6 @@ func (k *KV) Delete(key string) error {
 	return nil
 }
 
-func (k *KV) flush() error {
-	return nil
-}
-
 func (k *KV) readFile() error {
 	file, err := os.Open(k.file)
 	if err != nil {
