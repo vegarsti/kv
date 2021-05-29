@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
 type KV struct {
 	file string
 	m    map[string]string
+	mu   sync.Mutex
 }
 
 func New() *KV {
@@ -34,6 +36,8 @@ func (k *KV) Close() error {
 }
 
 func (k *KV) Get(key string) (string, error) {
+	k.mu.Lock() // blocks until lock is acquired
+	defer k.mu.Unlock()
 	v, ok := k.m[key]
 	if !ok {
 		return "", fmt.Errorf("not found")
@@ -42,6 +46,8 @@ func (k *KV) Get(key string) (string, error) {
 }
 
 func (k *KV) Put(key string, value string) error {
+	k.mu.Lock() // blocks until lock is acquired
+	defer k.mu.Unlock()
 	if v, ok := k.m[key]; ok {
 		return fmt.Errorf("key already exists with value %s", v)
 	}
@@ -50,6 +56,8 @@ func (k *KV) Put(key string, value string) error {
 }
 
 func (k *KV) Delete(key string) error {
+	k.mu.Lock() // blocks until lock is acquired
+	defer k.mu.Unlock()
 	if _, ok := k.m[key]; !ok {
 		return fmt.Errorf("not found")
 	}
