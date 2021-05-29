@@ -42,10 +42,18 @@ func (k *KV) Get(key string) (string, error) {
 }
 
 func (k *KV) Put(key string, value string) error {
+	if v, ok := k.m[key]; ok {
+		return fmt.Errorf("key already exists with value %s", v)
+	}
+	k.m[key] = value
 	return nil
 }
 
 func (k *KV) Delete(key string) error {
+	if _, ok := k.m[key]; !ok {
+		return fmt.Errorf("not found")
+	}
+	delete(k.m, key)
 	return nil
 }
 
