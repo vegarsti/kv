@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"kv/socket"
+	"kv/embedded"
 	"os"
 )
 
@@ -12,7 +12,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	k := socket.New()
+	// k := socket.New("/tmp/kv.sock")
+	k := embedded.New()
 	if err := k.Open(); err != nil {
 		fmt.Fprintf(os.Stderr, "open: %v\n", err)
 		os.Exit(1)
