@@ -17,6 +17,9 @@ func New() *KV {
 }
 
 func (k *KV) Open() error {
+	if _, err := os.OpenFile(k.file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		return fmt.Errorf("open file: %w", err)
+	}
 	if err := k.readFile(); err != nil {
 		return err
 	}
