@@ -27,7 +27,9 @@ func (k *KV) Open() error {
 }
 
 func (k *KV) Close() error {
-	k.flush()
+	if err := k.writeFile(); err != nil {
+		return fmt.Errorf("writeFile: %w", err)
+	}
 	return nil
 }
 
@@ -71,4 +73,23 @@ func (k *KV) readFile() error {
 		i++
 	}
 	return nil
+}
+
+func (k *KV) writeFile() error {
+	file, err := os.OpenFile(k.file, os.O_TRUNC|os.O_RDWR, 0)
+	if err != nil {
+		return fmt.Errorf("open: %w", err)
+	}
+	defer file.Close()
+	w := bufio.NewWriter(file)
+	for key, v := range k.m {
+		s := fmt.Sprintf("%s %s\n", key, v)
+		if _, err := w.WriteString(s); err != nil {
+			return fmt.Errorf("write string: %w", err)
+		}
+	}
+	if err := w.Flush(); err != nil {
+		return fmt.Errorf("flush: %w", err)
+	}
+	return err
 }
