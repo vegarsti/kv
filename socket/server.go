@@ -19,9 +19,9 @@ type Server struct {
 	kv   map[string]string
 }
 
-func NewServer() *Server {
+func NewServer(addr string) *Server {
 	return &Server{
-		addr: "/tmp/echo.sock",
+		addr: addr,
 		quit: make(chan interface{}),
 		kv:   make(map[string]string),
 	}
