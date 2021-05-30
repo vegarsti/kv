@@ -22,7 +22,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "open: %v\n", err)
 		os.Exit(1)
 	}
-	defer k.Close()
+	defer func() {
+		if err := k.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "close: %v\n", err)
+			os.Exit(1)
+		}
+	}()
 	key := os.Args[2]
 	switch os.Args[1] {
 	case "get":
