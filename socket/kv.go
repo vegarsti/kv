@@ -12,8 +12,8 @@ type KV struct {
 	c    net.Conn
 }
 
-func New() *KV {
-	return &KV{addr: "/tmp/echo.sock"}
+func New(addr string) *KV {
+	return &KV{addr: addr}
 }
 
 func (k *KV) Address() string {

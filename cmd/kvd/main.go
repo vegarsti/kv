@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	s := socket.NewServer()
+	s := socket.NewServer("/tmp/kv.sock")
 	if err := s.Open(); err != nil {
 		log.Printf("%v", err)
 		os.Exit(1)
