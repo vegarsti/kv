@@ -7,7 +7,11 @@ import (
 )
 
 func main() {
-	if len(os.Args[1:]) < 2 {
+	if len(os.Args[1:]) == 0 {
+		fmt.Fprintf(os.Stderr, "the kv CLI is not implemented yet\n")
+		os.Exit(1)
+	}
+	if len(os.Args[1:]) == 1 || len(os.Args[1:]) > 3 {
 		fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
@@ -18,7 +22,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "open: %v\n", err)
 		os.Exit(1)
 	}
-	defer k.Close()
+	defer func() {
+		if err := k.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "close: %v\n", err)
+			os.Exit(1)
+		}
+	}()
 	key := os.Args[2]
 	switch os.Args[1] {
 	case "get":
@@ -27,7 +36,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "get %s: %v\n", key, err)
 			os.Exit(1)
 		}
-		fmt.Printf("get %s: %s\n", key, value)
+		fmt.Printf("%s\n", value)
 	case "put":
 		if len(os.Args[1:]) != 3 {
 			fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]`\n")
@@ -38,13 +47,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "put %s: %s: %v\n", key, value, err)
 			os.Exit(1)
 		}
-		fmt.Printf("put %s: %s OK\n", key, value)
+		fmt.Println("OK")
 	case "delete":
 		if err := k.Delete(key); err != nil {
 			fmt.Fprintf(os.Stderr, "delete %s: %v\n", key, err)
 			os.Exit(1)
 		}
-		fmt.Printf("delete %s: OK\n", key)
+		fmt.Println("OK")
 	default:
 		fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
