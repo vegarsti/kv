@@ -7,7 +7,11 @@ import (
 )
 
 func main() {
-	if len(os.Args[1:]) < 2 {
+	if len(os.Args[1:]) == 0 {
+		fmt.Fprintf(os.Stderr, "the kv CLI is not implemented yet\n")
+		os.Exit(1)
+	}
+	if len(os.Args[1:]) == 1 || len(os.Args[1:]) > 3 {
 		fmt.Fprintf(os.Stderr, "usage: `kv [put] [key] [value]` or `kv [get] [key]` or `kv [delete] [key]`\n")
 		os.Exit(1)
 	}
