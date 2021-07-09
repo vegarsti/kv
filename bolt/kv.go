@@ -32,7 +32,6 @@ func (k *KV) Open() error {
 	}); err != nil {
 		log.Printf("update: %v", err.Error())
 	}
-	// set db on struct
 	k.db = db
 	return nil
 }
